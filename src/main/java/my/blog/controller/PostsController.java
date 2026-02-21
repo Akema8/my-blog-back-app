@@ -1,13 +1,8 @@
 package my.blog.controller;
 
-import my.blog.dto.PostDto;
-import my.blog.dto.PostRequestDto;
-import my.blog.dto.PostUpdateRequestDto;
-import my.blog.dto.PostsResponseDto;
+import my.blog.dto.*;
 import my.blog.service.ImageService;
 import my.blog.service.PostService;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +24,6 @@ public class PostsController {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
-    ///api/posts?search=Lalala&pageNumber=1&pageSize=5
     @GetMapping
     public ResponseEntity<PostsResponseDto> getPosts(
             @RequestParam(name = "search") String search,
@@ -66,7 +60,9 @@ public class PostsController {
     }
 
     @GetMapping("/{id}/image")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<byte[]> downloadImage(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(imageService.downloadImage(id));
     }
+
+
 }

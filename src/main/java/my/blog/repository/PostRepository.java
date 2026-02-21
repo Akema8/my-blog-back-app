@@ -1,5 +1,6 @@
 package my.blog.repository;
 
+import my.blog.model.Comment;
 import my.blog.model.Post;
 
 import java.util.List;
@@ -11,4 +12,9 @@ public interface PostRepository {
     void update(Post updatedPost);
     void deleteById(long id);
     void addLike(long id);
+    List<Comment> findAllComments(long postId);
+    Comment getCommentById(long commentId);
+    long addComment(String text, long postId);
+    void updateComment(Comment post);
+    void deleteComment(long commentId);
 }

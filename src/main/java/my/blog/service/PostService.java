@@ -1,9 +1,6 @@
 package my.blog.service;
 
-import my.blog.dto.PostDto;
-import my.blog.dto.PostRequestDto;
-import my.blog.dto.PostUpdateRequestDto;
-import my.blog.dto.PostsResponseDto;
+import my.blog.dto.*;
 import my.blog.mapper.PostMapper;
 import my.blog.repository.PostRepository;
 import org.springframework.stereotype.Service;
@@ -59,4 +56,6 @@ public class PostService {
         PostDto post = getPostById(id);
         return post.getLikesCount();
     }
+
+
 }

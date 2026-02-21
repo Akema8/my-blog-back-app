@@ -5,13 +5,10 @@ import my.blog.dto.PostRequestDto;
 import my.blog.dto.PostUpdateRequestDto;
 import my.blog.dto.PostsResponseDto;
 import my.blog.mapper.PostMapper;
-import my.blog.model.Post;
 import my.blog.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -36,7 +33,6 @@ public class PostService {
         PostsResponseDto postsResponse = new PostsResponseDto(posts, true, true, 0);
         return postsResponse;
     }
-
 
     public PostDto savePost(PostRequestDto newPost) {
         String tags = "";

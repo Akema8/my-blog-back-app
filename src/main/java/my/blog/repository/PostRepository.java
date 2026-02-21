@@ -10,4 +10,5 @@ public interface PostRepository {
     long save(String title, String text, String tags);
     void update(Post updatedPost);
     void deleteById(long id);
+    void addLike(long id);
 }

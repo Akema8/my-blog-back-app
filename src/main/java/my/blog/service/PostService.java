@@ -8,6 +8,7 @@ import my.blog.mapper.PostMapper;
 import my.blog.model.Post;
 import my.blog.repository.PostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,12 +47,20 @@ public class PostService {
         return getPostById(postId);
     }
 
+    @Transactional
     public PostDto updatePost(PostUpdateRequestDto updatedPost){
         postRepository.update(postMapper.toPost(updatedPost));
         return getPostById(updatedPost.getId());
     }
 
-    public void deletePost(Long id) {
+    public void deletePost(long id) {
         postRepository.deleteById(id);
+    }
+
+    @Transactional
+    public int likePost(long id){
+        postRepository.addLike(id);
+        PostDto post = getPostById(id);
+        return post.getLikesCount();
     }
 }

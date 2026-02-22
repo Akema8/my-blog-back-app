@@ -130,6 +130,16 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
+    public void incrementComment(long postId){
+        jdbcTemplate.update("update posts set commentsCount = commentsCount + 1 WHERE id = ?", postId);
+    }
+
+    @Override
+    public void decrementComment(long postId){
+        jdbcTemplate.update("update posts set commentsCount = commentsCount - 1 WHERE id = ?", postId);
+    }
+
+    @Override
     public void updateComment(Comment post) {
         String sql = "UPDATE comments SET text = ? WHERE id = ?";
         jdbcTemplate.update(

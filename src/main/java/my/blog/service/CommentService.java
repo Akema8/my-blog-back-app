@@ -30,6 +30,7 @@ public class CommentService {
 
     public CommentDto addComment(CommentRequestDto newComment){
         long newCommentId = postRepository.addComment(newComment.getText(), newComment.getPostId());
+        postRepository.incrementComment(newComment.getPostId());
         return getCommentById(newCommentId);
     }
 
@@ -38,7 +39,8 @@ public class CommentService {
         return getCommentById(updatedComment.getId());
     }
 
-    public void delete(long commentId){
+    public void delete(long postId, long commentId){
         postRepository.deleteComment(commentId);
+        postRepository.decrementComment(postId);
     }
 }

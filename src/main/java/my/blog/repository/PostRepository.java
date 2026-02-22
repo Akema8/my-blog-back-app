@@ -17,4 +17,6 @@ public interface PostRepository {
     long addComment(String text, long postId);
     void updateComment(Comment post);
     void deleteComment(long commentId);
+    void incrementComment(long postId);
+    void decrementComment(long postId);
 }

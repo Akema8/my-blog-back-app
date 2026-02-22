@@ -5,7 +5,10 @@ import my.blog.mapper.PostMapper;
 import my.blog.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -27,8 +30,46 @@ public class PostService {
                 .map(postMapper::toPostDTO)
                 .toList();
 
-        PostsResponseDto postsResponse = new PostsResponseDto(posts, true, true, 0);
-        return postsResponse;
+        if (search != null && !search.trim().isEmpty()) {
+            String[] words = search.trim().split("\\s+");
+            List<String> filteredWords = Arrays.stream(words)
+                    .filter(w -> !w.isEmpty())
+                    .toList();
+            List<String> tags = filteredWords.stream()
+                    .filter(w -> w.startsWith("#"))
+                    .map(w -> w.substring(1)) // убираем #
+                    .toList();
+
+            if (!tags.isEmpty()) {
+                posts = posts.stream()
+                        .filter(post -> {
+                            List<String> postTags = post.getTags();
+                            return postTags.containsAll(tags);
+                        })
+                        .toList();
+            }
+
+            String titleSearch = filteredWords.stream()
+                    .filter(w -> !w.startsWith("#"))
+                    .collect(Collectors.joining(" "))
+                    .toLowerCase();
+            if (!titleSearch.isEmpty()) {
+                posts = posts.stream()
+                        .filter(post -> post.getTitle() != null && post.getTitle().toLowerCase().contains(titleSearch))
+                        .toList();
+            }
+        }
+
+        int totalPosts = posts.size();
+        int fromIndex = Math.min((pageNumber-1) * pageSize, totalPosts);
+        int toIndex = Math.min(fromIndex + pageSize, totalPosts);
+
+        List<PostDto> pagePosts = posts.subList(fromIndex, toIndex);
+
+        boolean hasNext = toIndex < totalPosts;
+        boolean hasPrevious = fromIndex > 0;
+        return new PostsResponseDto(pagePosts, hasPrevious, hasNext, totalPosts);
+
     }
 
     public PostDto savePost(PostRequestDto newPost) {
@@ -50,7 +91,6 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    @Transactional
     public int likePost(long id){
         postRepository.addLike(id);
         PostDto post = getPostById(id);

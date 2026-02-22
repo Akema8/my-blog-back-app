@@ -8,8 +8,8 @@ CREATE TABLE if not exists posts (
 );
 
 INSERT INTO posts (title, text, tags, likesCount, commentsCount) VALUES
-( 'Название поста 1', 'Текст поста1...', 'tag_1,tag_2', 5, 1),
-( 'Название поста 2', 'Текст поста2...', '', 1, 5);
+( 'Название поста 1', 'Текст поста1...', 'tag_1,tag_2', 5, 3),
+( 'Название поста 2', 'Текст поста2...', '', 1, 1);
 
 
 
@@ -17,7 +17,8 @@ INSERT INTO posts (title, text, tags, likesCount, commentsCount) VALUES
 CREATE TABLE if not exists comments (
     id INT PRIMARY KEY AUTO_INCREMENT,
     text TEXT,
-    postId INT NOT NULL
+    postId INT NOT NULL,
+    CONSTRAINT fk_post FOREIGN KEY (postId) REFERENCES posts(id)
 );
 
 INSERT INTO comments (text, postId) VALUES

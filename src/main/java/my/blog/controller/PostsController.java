@@ -26,7 +26,7 @@ public class PostsController {
 
     @GetMapping
     public ResponseEntity<PostsResponseDto> getPosts(
-            @RequestParam(name = "search") String search,
+            @RequestParam(name = "search", required = false, defaultValue = "") String search,
             @RequestParam(name = "pageNumber") int pageNumber,
             @RequestParam(name = "pageSize") int pageSize) {
         return ResponseEntity.ok(postService.getPosts(search, pageNumber, pageSize));

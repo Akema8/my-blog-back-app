@@ -64,5 +64,11 @@ public class PostsController {
         return ResponseEntity.ok(imageService.downloadImage(id));
     }
 
+    @PutMapping(value = "/{id}/image")
+    public ResponseEntity<Void> updateImage(@PathVariable(name = "id") Long id, @RequestParam("image") MultipartFile image){
+        imageService.updateImage(id, image);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

@@ -4,6 +4,7 @@ import my.blog.dto.PostDto;
 import my.blog.dto.PostRequestDto;
 import my.blog.dto.PostUpdateRequestDto;
 import my.blog.dto.PostsResponseDto;
+import my.blog.exception.EntityNotFoundException;
 import my.blog.model.Post;
 import my.blog.repository.PostRepository;
 import my.blog.service.PostService;
@@ -135,7 +136,9 @@ public class PostFacadeTest {
 
     @Test
     void testDeletePost_success() {
-        long id = 1L;
+        long id = 123L;
+        Post post = new Post(id, "New Title", "New Text", "tag1,tag2", 0, 0);
+        when(postRepository.getById(id)).thenReturn(post);
         doNothing().when(postRepository).deleteById(id);
         postService.deletePost(id);
         verify(postRepository).deleteById(id);
@@ -152,5 +155,90 @@ public class PostFacadeTest {
         int likesCount = postService.likePost(id);
         verify(postRepository).addLike(id);
         assertEquals(5, likesCount);
+    }
+
+    @Test
+    void testGetPostById_notFound_exception() {
+        long postId = 999L;
+        when(postRepository.getById(postId)).thenReturn(null);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.getPostById(postId);
+        });
+        assertEquals("Post with ID " + postId + " not found", exception.getMessage());
+    }
+
+    @Test
+    void testGetPostById_invalidId_exception() {
+        long invalidId = -1L;
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.getPostById(invalidId);
+        });
+        assertEquals("postId must be positive", exception.getMessage());
+    }
+
+    @Test
+    void testDeletePost_invalidId_exception() {
+        long invalidId = 0;
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.deletePost(invalidId);
+        });
+        assertEquals("postId must be positive", exception.getMessage());
+    }
+
+    @Test
+    void testDeletePost_notFound_exception() {
+        long id = 999L;
+        when(postRepository.getById(id)).thenReturn(null);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.deletePost(id);
+        });
+        assertEquals("Post with ID " + id + " not found", exception.getMessage());
+    }
+
+    @Test
+    void testUpdatePost_notFound_exception() {
+        PostUpdateRequestDto updateDto = new PostUpdateRequestDto(999L, "Title", "Text", List.of("tag"));
+
+        when(postRepository.getById(999L)).thenReturn(null);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.updatePost(updateDto);
+        });
+        assertEquals("Post with ID 999 not found", exception.getMessage());
+    }
+
+    @Test
+    void testUpdatePost_invalidId_exception() {
+        PostUpdateRequestDto updateDto = new PostUpdateRequestDto(0, "Title", "Text", List.of("tag"));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.updatePost(updateDto);
+        });
+        assertEquals("postId must be positive", exception.getMessage());
+    }
+
+    @Test
+    void testLikePost_invalidId_exception() {
+        long invalidId = -5;
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.likePost(invalidId);
+        });
+        assertEquals("postId must be positive", exception.getMessage());
+    }
+
+    @Test
+    void testLikePost_notFound_exception() {
+        long id = 999L;
+        when(postRepository.getById(id)).thenReturn(null);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            postService.likePost(id);
+        });
+        assertEquals("Post with ID " + id + " not found", exception.getMessage());
     }
 }

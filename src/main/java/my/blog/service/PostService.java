@@ -3,6 +3,7 @@ package my.blog.service;
 import my.blog.dto.*;
 import my.blog.mapper.PostMapper;
 import my.blog.repository.PostRepository;
+import my.blog.utility.Validator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +24,18 @@ public class PostService {
     }
 
     public PostDto getPostById(Long id) {
-        return postMapper.toPostDTO(postRepository.getById(id));
+        Validator.validatePostId(id);
+        var post = postRepository.getById(id);
+        if (post == null) {
+            throw new IllegalArgumentException("Post with ID " + id + " not found");
+        }
+        return postMapper.toPostDTO(post);
     }
 
     public PostsResponseDto getPosts(String search, int pageNumber, int pageSize) {
+        if (pageNumber <= 0 || pageSize <= 0) {
+            throw new IllegalArgumentException("Page number and size must be greater than zero");
+        }
         List<PostDto> posts = postRepository.findAll().stream()
                 .map(postMapper::toPostDTO)
                 .toList();
@@ -74,6 +83,7 @@ public class PostService {
     }
 
     public PostDto savePost(PostRequestDto newPost) {
+        Validator.validatePostRequest(newPost);
         String tags = "";
         if (newPost.getTags() != null && !newPost.getTags().isEmpty()) {
             tags = String.join(",", newPost.getTags());
@@ -84,19 +94,26 @@ public class PostService {
 
     @Transactional
     public PostDto updatePost(PostUpdateRequestDto updatedPost){
+        Validator.validatePostUpdate(updatedPost);
         postRepository.update(postMapper.toPost(updatedPost));
         return getPostById(updatedPost.getId());
     }
 
     public void deletePost(long id) {
+        Validator.validatePostId(id);
+        if (postRepository.getById(id) == null) {
+            throw new IllegalArgumentException("Post with ID " + id + " not found");
+        }
         postRepository.deleteById(id);
     }
 
     public int likePost(long id){
+        Validator.validatePostId(id);
+        if (postRepository.getById(id) == null) {
+            throw new IllegalArgumentException("Post with ID " + id + " not found");
+        }
         postRepository.addLike(id);
         PostDto post = getPostById(id);
         return post.getLikesCount();
     }
-
-
 }

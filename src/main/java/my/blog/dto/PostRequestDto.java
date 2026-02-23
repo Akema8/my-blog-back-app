@@ -10,6 +10,11 @@ public class PostRequestDto {
     public PostRequestDto() {
     }
 
+    public PostRequestDto(String title, String text) {
+        this.title = title;
+        this.text = text;
+    }
+
     public PostRequestDto(String title, String text, List<String> tags) {
         this.title = title;
         this.text = text;

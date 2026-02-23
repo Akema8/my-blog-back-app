@@ -1,5 +1,7 @@
 package my.blog.service;
 
+import my.blog.utility.Validator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,10 +14,21 @@ import java.nio.file.Paths;
 public class ImageService {
     public static final String UPLOAD_DIR = "uploads/";
 
-    private Path getFilePath(long postId) {
-        if (postId <= 0) {
-            throw new IllegalArgumentException("Post ID must be positive");
+    private final Path uploadDir;
+
+    public ImageService(@Value("${upload.dir}") String uploadDirPath) {
+        this.uploadDir = Paths.get(uploadDirPath);
+        try {
+            if (!Files.exists(this.uploadDir)) {
+                Files.createDirectories(this.uploadDir);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create upload directory", e);
         }
+    }
+
+    private Path getFilePath(long postId) {
+        Validator.validatePostId(postId);
         Path uploadDir = Paths.get(UPLOAD_DIR);
         if (!Files.exists(uploadDir)) {
             try {
@@ -28,9 +41,7 @@ public class ImageService {
     }
 
     public void uploadImage(long postId, MultipartFile image) {
-        if (postId <= 0) {
-            throw new IllegalArgumentException("Post ID must be positive");
-        }
+        Validator.validatePostId(postId);
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("The uploaded image is empty or null");
         }
@@ -43,9 +54,7 @@ public class ImageService {
     }
 
     public byte[] downloadImage(long postId) {
-        if (postId <= 0) {
-            throw new IllegalArgumentException("Post ID must be positive");
-        }
+        Validator.validatePostId(postId);
         Path filePath = getFilePath(postId);
         if (!Files.exists(filePath)) {
             throw new RuntimeException("File not found for post ID: " + postId);

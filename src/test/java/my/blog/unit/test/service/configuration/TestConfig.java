@@ -2,6 +2,7 @@ package my.blog.unit.test.service.configuration;
 
 import my.blog.mapper.PostMapper;
 import my.blog.repository.PostRepository;
+import my.blog.service.CommentService;
 import my.blog.service.PostService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
@@ -29,5 +30,10 @@ public class TestConfig {
     @Bean
     public PostService postService(PostRepository postRepository, PostMapper postMapper) {
         return new PostService(postRepository, postMapper);
+    }
+
+    @Bean
+    public CommentService commentService(PostRepository postRepository, PostMapper postMapper){
+        return new CommentService(postRepository, postMapper);
     }
 }

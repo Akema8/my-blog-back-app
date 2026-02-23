@@ -4,7 +4,6 @@ import my.blog.dto.PostDto;
 import my.blog.dto.PostRequestDto;
 import my.blog.dto.PostUpdateRequestDto;
 import my.blog.dto.PostsResponseDto;
-import my.blog.exception.EntityNotFoundException;
 import my.blog.model.Post;
 import my.blog.repository.PostRepository;
 import my.blog.service.PostService;
@@ -25,13 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class PostFacadeTest {
+public class PostServiceTest {
 
     @Autowired
     private PostRepository postRepository;
     @Autowired
     private PostService postService;
-
 
     @BeforeEach
     void resetMocks() {

@@ -7,6 +7,12 @@ public class CommentRequestDto {
     public CommentRequestDto(){
     }
 
+    public CommentRequestDto(String text, long postId){
+        this.text = text;
+        this.postId = postId;
+    }
+
+
 
     public String getText() {
         return text;

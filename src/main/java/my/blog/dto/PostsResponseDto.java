@@ -23,9 +23,7 @@ public class PostsResponseDto {
         this.posts = posts;
     }
 
-    public boolean isHasPrev() {
-        return hasPrev;
-    }
+    public boolean isHasPrev() {  return hasPrev; }
 
     public void setHasPrev(boolean hasPrev) {
         this.hasPrev = hasPrev;

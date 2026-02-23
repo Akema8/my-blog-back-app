@@ -9,6 +9,12 @@ public class PostUpdateRequestDto {
         private List<String> tags;
 
         public PostUpdateRequestDto(){}
+        public PostUpdateRequestDto(long id, String title, String text, List<String> tags) {
+            this.id = id;
+            this.title = title;
+            this.text = text;
+            this.tags = tags;
+        }
         public long getId() {
             return id;
         }

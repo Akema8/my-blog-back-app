@@ -1,16 +1,26 @@
 package my.blog.dto;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PostDto {
-    private int id;
+    private long id;
     private String title;
     private String text;
     private List<String> tags;
     private int likesCount;
     private int commentsCount;
 
-    public int getId() {
+    public PostDto(){}
+    public PostDto(long id, String title, String text, List<String> tags, int likesCount, int commentsCount) {
+        this.id = id;
+        this.title = title;
+        this.text = text;
+        this.tags = tags;
+        this.likesCount = likesCount;
+        this.commentsCount = commentsCount;
+    }
+    public long getId() {
         return id;
     }
 
@@ -56,5 +66,23 @@ public class PostDto {
 
     public void setCommentsCount(int commentsCount) {
         this.commentsCount = commentsCount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PostDto)) return false;
+        PostDto postDto = (PostDto) o;
+        return id == postDto.id &&
+                likesCount == postDto.likesCount &&
+                commentsCount == postDto.commentsCount &&
+                Objects.equals(title, postDto.title) &&
+                Objects.equals(text, postDto.text) &&
+                Objects.equals(tags, postDto.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, text, tags, likesCount, commentsCount);
     }
 }

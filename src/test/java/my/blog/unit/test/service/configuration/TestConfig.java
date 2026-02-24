@@ -6,14 +6,13 @@ import my.blog.service.CommentService;
 import my.blog.service.ImageService;
 import my.blog.service.PostService;
 import org.mapstruct.factory.Mappers;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.*;
 
 import static org.mockito.Mockito.mock;
 
 @Configuration
+@PropertySource("classpath:test-application.properties")
 @ComponentScan("my.blog.unit.test")
 public class TestConfig {
 
@@ -24,6 +23,7 @@ public class TestConfig {
     }
 
     @Bean
+    @Primary
     public PostMapper postMapper() {
         return Mappers.getMapper(PostMapper.class);
     }
@@ -39,7 +39,7 @@ public class TestConfig {
     }
 
     @Bean
-    public ImageService imageService(){
-        return new ImageService("test_uploads/");
+    public ImageService imageService(@Value("${upload.dir.test}") String uploadDirPath){
+        return new ImageService(uploadDirPath);
     }
 }

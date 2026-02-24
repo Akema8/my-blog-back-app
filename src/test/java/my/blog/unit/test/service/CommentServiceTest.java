@@ -6,7 +6,6 @@ import my.blog.model.Comment;
 import my.blog.repository.PostRepository;
 import my.blog.service.CommentService;
 import my.blog.unit.test.service.configuration.TestConfig;
-import my.blog.mapper.PostMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +31,6 @@ public class CommentServiceTest {
     void resetMocks() {
         reset(postRepository);
     }
-
 
     @Test
     void testGetComments_success() {

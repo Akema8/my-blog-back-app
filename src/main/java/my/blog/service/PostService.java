@@ -18,9 +18,9 @@ public class PostService {
 
     private final PostMapper postMapper;
 
-    public PostService(PostRepository _postRepository, PostMapper _postMapper) {
-        this.postRepository = _postRepository;
-        this.postMapper = _postMapper;
+    public PostService(PostRepository postRepository, PostMapper postMapper) {
+        this.postRepository = postRepository;
+        this.postMapper = postMapper;
     }
 
     public PostDto getPostById(Long id) {

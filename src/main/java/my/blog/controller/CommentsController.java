@@ -3,6 +3,7 @@ package my.blog.controller;
 import my.blog.dto.CommentDto;
 import my.blog.dto.CommentRequestDto;
 import my.blog.service.CommentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class CommentsController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CommentDto> addComment(@RequestBody CommentRequestDto newComment){
         return ResponseEntity.ok(commentService.addComment(newComment));
     }
@@ -39,6 +41,7 @@ public class CommentsController {
     }
 
     @DeleteMapping(value = "/{comId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteComment(@PathVariable(name = "id") Long id, @PathVariable(name = "comId") Long commentId){
         commentService.delete(id, commentId);
         return ResponseEntity.ok().build();

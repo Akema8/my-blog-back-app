@@ -3,6 +3,7 @@ package my.blog.controller;
 import my.blog.dto.*;
 import my.blog.service.ImageService;
 import my.blog.service.PostService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,7 @@ public class PostsController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PostDto> savePost(@RequestBody PostRequestDto newPost){
         return ResponseEntity.ok(postService.savePost(newPost));
     }
@@ -43,6 +45,7 @@ public class PostsController {
     }
 
     @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deletePost(@PathVariable(name = "id") Long id) {
         postService.deletePost(id);
         return ResponseEntity.ok().build();
@@ -54,6 +57,7 @@ public class PostsController {
     }
 
     @PostMapping(value = "/{id}/image")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> addImage(@PathVariable(name = "id") Long id, @RequestParam("image") MultipartFile image){
         imageService.uploadImage(id, image);
         return ResponseEntity.ok().build();
@@ -65,6 +69,7 @@ public class PostsController {
     }
 
     @PutMapping(value = "/{id}/image")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> updateImage(@PathVariable(name = "id") Long id, @RequestParam("image") MultipartFile image){
         imageService.updateImage(id, image);
         return ResponseEntity.ok().build();

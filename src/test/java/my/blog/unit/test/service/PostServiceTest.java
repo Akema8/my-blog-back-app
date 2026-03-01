@@ -4,30 +4,36 @@ import my.blog.dto.PostDto;
 import my.blog.dto.PostRequestDto;
 import my.blog.dto.PostUpdateRequestDto;
 import my.blog.dto.PostsResponseDto;
+import my.blog.exception.NotFoundException;
 import my.blog.model.Post;
 import my.blog.repository.PostRepository;
 import my.blog.service.PostService;
-import my.blog.unit.test.service.configuration.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.reset;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
+
+@SpringBootTest
 public class PostServiceTest {
 
-    @Autowired
+    @MockitoBean
     private PostRepository postRepository;
+
     @Autowired
     private PostService postService;
 
@@ -41,7 +47,7 @@ public class PostServiceTest {
         long postId = 1L;
         Post post = new Post(postId, "Title1", "Text1", "tag1, tag2", 0, 0);
         PostDto postDto = new PostDto(postId, "Title1", "Text1", Arrays.asList("tag1", "tag2"), 0, 0);
-        when(postRepository.getById(postId)).thenReturn(post);
+        when(postRepository.getById(postId)).thenReturn(Optional.of(post));
 
         PostDto result = postService.getPostById(postId);
         verify(postRepository).getById(postId);
@@ -108,7 +114,7 @@ public class PostServiceTest {
         PostDto newPostDto = new PostDto(newId, "New Title", "New Text", List.of("tag1", "tag2"), 0, 0);
 
         when(postRepository.save(anyString(), anyString(), anyString())).thenReturn(newId);
-        when(postRepository.getById(newId)).thenReturn(newPost);
+        when(postRepository.getById(newId)).thenReturn(Optional.of(newPost));
         PostDto result = postService.savePost(requestDto);
 
         verify(postRepository).save("New Title", "New Text", "tag1,tag2");
@@ -125,7 +131,7 @@ public class PostServiceTest {
         PostDto updatedDto = new PostDto(1L, "Updated Title", "Updated Text", List.of("tag1"), 0, 0);
 
         doNothing().when(postRepository).update(updatedPost);
-        when(postRepository.getById(1L)).thenReturn(updatedPost);
+        when(postRepository.getById(1L)).thenReturn(Optional.of(updatedPost));
         PostDto result = postService.updatePost(updateDto);
 
         verify(postRepository).update(updatedPost);
@@ -136,7 +142,7 @@ public class PostServiceTest {
     void testDeletePost_success() {
         long id = 123L;
         Post post = new Post(id, "New Title", "New Text", "tag1,tag2", 0, 0);
-        when(postRepository.getById(id)).thenReturn(post);
+        when(postRepository.getById(id)).thenReturn(Optional.of(post));
         doNothing().when(postRepository).deleteById(id);
         postService.deletePost(id);
         verify(postRepository).deleteById(id);
@@ -148,7 +154,7 @@ public class PostServiceTest {
         Post post = new Post(id, "Title", "Text", "tag", 5, 0);
         PostDto postDto = new PostDto(id, "Title", "Text", List.of("tag"), 5, 0);
 
-        when(postRepository.getById(id)).thenReturn(post);
+        when(postRepository.getById(id)).thenReturn(Optional.of(post));
         doNothing().when(postRepository).addLike(id);
         int likesCount = postService.likePost(id);
         verify(postRepository).addLike(id);
@@ -158,9 +164,9 @@ public class PostServiceTest {
     @Test
     void testGetPostById_notFound_exception() {
         long postId = 999L;
-        when(postRepository.getById(postId)).thenReturn(null);
+        when(postRepository.getById(postId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
             postService.getPostById(postId);
         });
         assertEquals("Post with ID " + postId + " not found", exception.getMessage());
@@ -201,9 +207,9 @@ public class PostServiceTest {
     void testUpdatePost_notFound_exception() {
         PostUpdateRequestDto updateDto = new PostUpdateRequestDto(999L, "Title", "Text", List.of("tag"));
 
-        when(postRepository.getById(999L)).thenReturn(null);
+        when(postRepository.getById(999L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
             postService.updatePost(updateDto);
         });
         assertEquals("Post with ID 999 not found", exception.getMessage());

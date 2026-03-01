@@ -2,27 +2,31 @@ package my.blog.unit.test.service;
 
 import my.blog.dto.CommentDto;
 import my.blog.dto.CommentRequestDto;
+import my.blog.exception.NotFoundException;
 import my.blog.model.Comment;
 import my.blog.repository.PostRepository;
 import my.blog.service.CommentService;
-import my.blog.unit.test.service.configuration.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
+@SpringBootTest
 public class CommentServiceTest {
 
-    @Autowired
+    @MockitoBean
     private PostRepository postRepository;
     @Autowired
     private CommentService commentService;
@@ -59,7 +63,7 @@ public class CommentServiceTest {
     void testGetCommentById_success() {
         long commentId = 1L;
         Comment comment = new Comment(commentId, "Comment text", 1L);
-        when(postRepository.getCommentById(commentId)).thenReturn(comment);
+        when(postRepository.getCommentById(commentId)).thenReturn(Optional.of(comment));
 
         CommentDto result = commentService.getCommentById(commentId);
         assertNotNull(result);
@@ -70,9 +74,9 @@ public class CommentServiceTest {
     @Test
     void testGetCommentById_notFound() {
         long commentId = 999L;
-        when(postRepository.getCommentById(commentId)).thenReturn(null);
+        when(postRepository.getCommentById(commentId)).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> {
             commentService.getCommentById(commentId);
         });
         assertEquals("Comment with ID " + commentId + " not found", ex.getMessage());
@@ -95,7 +99,7 @@ public class CommentServiceTest {
         Comment comment = new Comment(newCommentId, "New comment", 1L);
 
         when(postRepository.addComment(requestDto.getText(), requestDto.getPostId())).thenReturn(newCommentId);
-        when(postRepository.getCommentById(newCommentId)).thenReturn(comment);
+        when(postRepository.getCommentById(newCommentId)).thenReturn(Optional.of(comment));
 
         CommentDto result = commentService.addComment(requestDto);
 
@@ -120,11 +124,11 @@ public class CommentServiceTest {
         Comment existingComment = new Comment(1L, "Old comment", 1L);
         Comment updatedCommentEntity = new Comment(1L, "Updated comment", 1L);
 
-        when(postRepository.getCommentById(1L)).thenReturn(existingComment);
-        when(postRepository.getCommentById(1L)).thenReturn(existingComment);
-        when(postRepository.getCommentById(updatedComment.getId())).thenReturn(existingComment);
+        when(postRepository.getCommentById(1L)).thenReturn(Optional.of(existingComment));
+        when(postRepository.getCommentById(1L)).thenReturn(Optional.of(existingComment));
+        when(postRepository.getCommentById(updatedComment.getId())).thenReturn(Optional.of(existingComment));
         doNothing().when(postRepository).updateComment(any());
-        when(postRepository.getCommentById(updatedComment.getId())).thenReturn(updatedCommentEntity);
+        when(postRepository.getCommentById(updatedComment.getId())).thenReturn(Optional.of(updatedCommentEntity));
 
         CommentDto result = commentService.updateComment(updatedComment);
         assertEquals("Updated comment", result.getText());
@@ -134,9 +138,9 @@ public class CommentServiceTest {
     @Test
     void testUpdateComment_notFound() {
         CommentDto updatedComment = new CommentDto(999L, "Text", 1L);
-        when(postRepository.getCommentById(999L)).thenReturn(null);
+        when(postRepository.getCommentById(999L)).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> {
             commentService.updateComment(updatedComment);
         });
         assertEquals("Comment with ID 999 not found", ex.getMessage());
@@ -158,7 +162,7 @@ public class CommentServiceTest {
         long commentId = 10L;
         Comment comment = new Comment(commentId, "Text", postId);
 
-        when(postRepository.getCommentById(commentId)).thenReturn(comment);
+        when(postRepository.getCommentById(commentId)).thenReturn(Optional.of(comment));
         doNothing().when(postRepository).deleteComment(commentId);
         doNothing().when(postRepository).decrementComment(postId);
 
@@ -173,9 +177,9 @@ public class CommentServiceTest {
     void testDelete_commentNotFound() {
         long postId = 1L;
         long commentId = 999L;
-        when(postRepository.getCommentById(commentId)).thenReturn(null);
+        when(postRepository.getCommentById(commentId)).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> {
             commentService.delete(postId, commentId);
         });
         assertEquals("Comment with ID " + commentId + " not found", ex.getMessage());

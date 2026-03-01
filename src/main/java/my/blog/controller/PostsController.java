@@ -1,9 +1,14 @@
 package my.blog.controller;
 
-import my.blog.dto.*;
+import my.blog.dto.PostDto;
+import my.blog.dto.PostRequestDto;
+import my.blog.dto.PostUpdateRequestDto;
+import my.blog.dto.PostsResponseDto;
 import my.blog.service.ImageService;
 import my.blog.service.PostService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +27,8 @@ public class PostsController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<PostDto> getPost(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(postService.getPostById(id));
+        PostDto ee = postService.getPostById(id);
+        return ResponseEntity.ok(ee);
     }
 
     @GetMapping
@@ -40,7 +46,8 @@ public class PostsController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<PostDto> updatePost(@RequestBody PostUpdateRequestDto updatedPost) {
+    public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id") Long id, @RequestBody PostUpdateRequestDto updatedPost) {
+        updatedPost.setId(id);
         return ResponseEntity.ok(postService.updatePost(updatedPost));
     }
 
@@ -48,7 +55,7 @@ public class PostsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deletePost(@PathVariable(name = "id") Long id) {
         postService.deletePost(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/{id}/likes")
@@ -60,20 +67,21 @@ public class PostsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> addImage(@PathVariable(name = "id") Long id, @RequestParam("image") MultipartFile image){
         imageService.uploadImage(id, image);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> downloadImage(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(imageService.downloadImage(id));
+        MediaType mediaType = MediaType.IMAGE_JPEG;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        return new ResponseEntity<>(imageService.downloadImage(id), headers, HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> updateImage(@PathVariable(name = "id") Long id, @RequestParam("image") MultipartFile image){
         imageService.updateImage(id, image);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
-
-
 }

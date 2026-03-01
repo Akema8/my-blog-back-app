@@ -1,33 +1,31 @@
 package my.blog.integration.test.repository;
 
-import my.blog.configuration.DataSourceConfiguration;
 import my.blog.model.Post;
-import my.blog.repository.JdbcNativePostRepository;
 import my.blog.repository.PostRepository;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringJUnitConfig(classes = {DataSourceConfiguration.class, JdbcNativePostRepository.class})
-@TestPropertySource(locations = "classpath:test-application.properties")
+@SpringBootTest
 public class PostRepositoryTest {
-
+    @Autowired
+    private PostRepository postRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    private PostRepository postRepository;
-
     @BeforeEach
     void setUp() {
+
+        jdbcTemplate.execute("ALTER TABLE posts ALTER COLUMN id RESTART WITH 1");
         jdbcTemplate.execute("DELETE FROM comments");
         jdbcTemplate.execute("DELETE FROM posts");
         jdbcTemplate.execute("""
@@ -70,14 +68,14 @@ public class PostRepositoryTest {
         assertEquals("Текст поста2...", second.getText());
     }
 
-    @Test
+   @Test
     void deleteById_shouldRemovePostFromDatabase_success() {
-        Post post = postRepository.getById(1L);
-        assertNotNull(post);
+        Optional<Post> post = postRepository.getById(1L);
+        assertNotEquals(post, Optional.empty());
         postRepository.deleteById(1L);
 
-        List<Post> posts = postRepository.findAll();
-        assertEquals(1, posts.size());
+        post = postRepository.getById(1L);
+        assertEquals(post, Optional.empty());
     }
 
 }

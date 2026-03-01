@@ -1,5 +1,7 @@
 package my.blog.service;
 
+import my.blog.dto.PostDto;
+import my.blog.exception.NotFoundException;
 import my.blog.utility.Validator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,7 @@ public class ImageService {
                 throw new RuntimeException("Failed to create download directory", e);
             }
         }
-        return uploadDir.resolve(String.valueOf(postId));
+        return uploadDir.resolve(String.valueOf(postId) + ".jpeg");
     }
 
     public void uploadImage(long postId, MultipartFile image) {
@@ -57,7 +59,7 @@ public class ImageService {
         Validator.validatePostId(postId);
         Path filePath = getFilePath(postId);
         if (!Files.exists(filePath)) {
-            throw new RuntimeException("File not found for post ID: " + postId);
+            throw new NotFoundException("File", + postId);
         }
         try {
             return Files.readAllBytes(filePath);

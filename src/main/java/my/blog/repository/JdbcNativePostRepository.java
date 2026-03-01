@@ -2,12 +2,15 @@ package my.blog.repository;
 
 import my.blog.model.Comment;
 import my.blog.model.Post;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class JdbcNativePostRepository implements PostRepository {
@@ -35,21 +38,26 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public Post getById(long id) {
+    public Optional<Post> getById(long id) {
         String sql = "select id, title, text, tags, likesCount, commentsCount from posts where id = ?";
-        return jdbcTemplate.queryForObject(
-                sql,
-                new Object[]{id},
-                (rs, rowNum) ->
-                        new Post(
-                                rs.getLong("id"),
-                                rs.getString("title"),
-                                rs.getString("text"),
-                                rs.getString("tags"),
-                                rs.getInt("likesCount"),
-                                rs.getInt("commentsCount")
-                        )
-        );
+        try {
+            Post post = jdbcTemplate.queryForObject(
+                    sql,
+                    new Object[]{id},
+                    (rs, rowNum) ->
+                            new Post(
+                                    rs.getLong("id"),
+                                    rs.getString("title"),
+                                    rs.getString("text"),
+                                    rs.getString("tags"),
+                                    rs.getInt("likesCount"),
+                                    rs.getInt("commentsCount")
+                            )
+            );
+            return Optional.ofNullable(post);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -103,17 +111,22 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public Comment getCommentById(long commentId){
+    public Optional<Comment> getCommentById(long commentId){
         String sql = "select id, text, postId from comments where id = ?";
-        return jdbcTemplate.query(
-                sql,
-                new Object[] { commentId },
-                (rs, rowNum) -> new Comment(
-                        rs.getLong("id"),
-                        rs.getString("text"),
-                        rs.getLong("postId")
-                )
-        ).getLast();
+        try {
+            Comment comment = jdbcTemplate.query(
+                    sql,
+                    new Object[]{commentId},
+                    (rs, rowNum) -> new Comment(
+                            rs.getLong("id"),
+                            rs.getString("text"),
+                            rs.getLong("postId")
+                    )
+            ).getLast();
+            return Optional.ofNullable(comment);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

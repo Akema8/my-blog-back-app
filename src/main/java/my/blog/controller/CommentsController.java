@@ -44,6 +44,7 @@ public class CommentsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteComment(@PathVariable(name = "id") Long id, @PathVariable(name = "comId") Long commentId){
         commentService.delete(id, commentId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
+

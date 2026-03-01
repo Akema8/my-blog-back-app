@@ -37,7 +37,7 @@ public class ImageService {
                 throw new RuntimeException("Failed to create download directory", e);
             }
         }
-        return uploadDir.resolve(String.valueOf(postId));
+        return uploadDir.resolve(String.valueOf(postId) + ".jpeg");
     }
 
     public void uploadImage(long postId, MultipartFile image) {

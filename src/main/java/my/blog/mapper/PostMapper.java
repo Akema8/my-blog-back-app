@@ -18,6 +18,8 @@ public interface PostMapper {
     Post toPost(PostDto postDto);
 
     @Mapping(source = "tags", target = "tags", qualifiedByName = "listToString")
+    @Mapping(target = "likesCount", ignore = true)
+    @Mapping(target = "commentsCount", ignore = true)
     Post toPost(PostUpdateRequestDto updatedPost);
 
     CommentDto toCommentDTO(Comment comment);

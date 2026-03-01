@@ -2,6 +2,8 @@ package my.blog.service;
 
 import my.blog.dto.CommentDto;
 import my.blog.dto.CommentRequestDto;
+import my.blog.dto.PostDto;
+import my.blog.exception.NotFoundException;
 import my.blog.mapper.PostMapper;
 import my.blog.model.Comment;
 import my.blog.repository.PostRepository;
@@ -29,11 +31,9 @@ public class CommentService {
 
     public CommentDto getCommentById(long commentId){
         Validator.validateCommentId(commentId);
-        Comment comment = postRepository.getCommentById(commentId);
-        if (comment == null){
-            throw new RuntimeException("Comment with ID " + commentId + " not found");
-        }
-        return postMapper.toCommentDTO(comment);
+        return postRepository.getCommentById(commentId)
+                .map(postMapper::toCommentDTO)
+                .orElseThrow(() -> new NotFoundException("Comment", commentId));
     }
 
     public CommentDto addComment(CommentRequestDto newComment){
@@ -45,10 +45,8 @@ public class CommentService {
 
     public CommentDto updateComment(CommentDto updatedComment){
         Validator.validateCommentDto(updatedComment);
-        Comment comment = postRepository.getCommentById(updatedComment.getId());
-        if (comment == null){
-            throw new RuntimeException("Comment with ID " + updatedComment.getId() + " not found");
-        }
+        Comment comment = postRepository.getCommentById(updatedComment.getId())
+                .orElseThrow(() -> new NotFoundException("Comment", updatedComment.getId()));
         postRepository.updateComment(postMapper.toComment(updatedComment));
         return getCommentById(updatedComment.getId());
     }
@@ -56,7 +54,8 @@ public class CommentService {
     public void delete(long postId, long commentId){
         Validator.validatePostId(postId);
         Validator.validateCommentId(commentId);
-        Comment comment = postRepository.getCommentById(commentId);
+        Comment comment = postRepository.getCommentById(commentId)
+                .orElseThrow(() -> new NotFoundException("Comment", commentId));
         if (comment == null){
             throw new RuntimeException("Comment with ID " + commentId+ " not found");
         }

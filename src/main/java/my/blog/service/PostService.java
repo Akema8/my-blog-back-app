@@ -33,7 +33,7 @@ public class PostService {
         Validator.validatePostId(id);
         PostDto post = postRepository.getById(id)
                 .map(postMapper::toPostDTO)
-                .orElseThrow(() -> new NotFoundException(id));
+                .orElseThrow(() -> new NotFoundException("Post", id));
         return post;
     }
 

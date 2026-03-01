@@ -111,17 +111,22 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public Comment getCommentById(long commentId){
+    public Optional<Comment> getCommentById(long commentId){
         String sql = "select id, text, postId from comments where id = ?";
-        return jdbcTemplate.query(
-                sql,
-                new Object[] { commentId },
-                (rs, rowNum) -> new Comment(
-                        rs.getLong("id"),
-                        rs.getString("text"),
-                        rs.getLong("postId")
-                )
-        ).getLast();
+        try {
+            Comment comment = jdbcTemplate.query(
+                    sql,
+                    new Object[]{commentId},
+                    (rs, rowNum) -> new Comment(
+                            rs.getLong("id"),
+                            rs.getString("text"),
+                            rs.getLong("postId")
+                    )
+            ).getLast();
+            return Optional.ofNullable(comment);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

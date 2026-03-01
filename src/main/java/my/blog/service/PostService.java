@@ -1,7 +1,12 @@
 package my.blog.service;
 
-import my.blog.dto.*;
+import my.blog.dto.PostDto;
+import my.blog.dto.PostRequestDto;
+import my.blog.dto.PostUpdateRequestDto;
+import my.blog.dto.PostsResponseDto;
+import my.blog.exception.NotFoundException;
 import my.blog.mapper.PostMapper;
+import my.blog.model.Post;
 import my.blog.repository.PostRepository;
 import my.blog.utility.Validator;
 import org.springframework.stereotype.Service;
@@ -9,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +31,10 @@ public class PostService {
 
     public PostDto getPostById(Long id) {
         Validator.validatePostId(id);
-        var post = postRepository.getById(id);
-        if (post == null) {
-            throw new IllegalArgumentException("Post with ID " + id + " not found");
-        }
-        return postMapper.toPostDTO(post);
+        PostDto post = postRepository.getById(id)
+                .map(postMapper::toPostDTO)
+                .orElseThrow(() -> new NotFoundException(id));
+        return post;
     }
 
     public PostsResponseDto getPosts(String search, int pageNumber, int pageSize) {
@@ -82,6 +87,7 @@ public class PostService {
 
     }
 
+    @Transactional
     public PostDto savePost(PostRequestDto newPost) {
         Validator.validatePostRequest(newPost);
         String tags = "";
